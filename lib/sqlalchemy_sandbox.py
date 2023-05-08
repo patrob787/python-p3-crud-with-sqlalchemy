@@ -59,12 +59,62 @@ if __name__ == '__main__':
     session.bulk_save_objects([albert_einstein, alan_turing])
     session.commit()
 
+    # READ RECORDS
+    students1 = session.query(Student)
+    print([student for student in students1])
+    #OR
     students = session.query(Student).all()
-    names = session.query(Student.name).all()
-    students_by_name = session.query(Student.name).order_by(Student.name).all()
-    students_by_grade_desc = session.query(Student.name, Student.grade).order_by(desc(Student.grade)).all()
+    print(students)
 
-    # print(students)
-    # print(names)
+    #SELECT CERTAIN COLUMNS
+    names = session.query(Student.name).all()
+    print(names)
+
+    #ORDERING
+    students_by_name = session.query(Student.name).order_by(Student.name).all()
     print(students_by_name)
+    
+    #IN DESCENDING ORDER
+    students_by_grade_desc = session.query(Student.name, Student.grade).order_by(desc(Student.grade)).all()
     print(students_by_grade_desc)
+
+    #LIMITING
+    oldest_student = session.query(Student.name, Student.birthday).order_by(Student.birthday).limit(1).all()
+    print(oldest_student)
+
+    #FIRST() METHOD - quick way to execute a limit(1)
+    oldest_student2 = session.query(Student.name, Student.birthday).order_by(Student.birthday).first()
+    print(oldest_student2)
+
+    #FUNC - from sqlalchemy i.e. sum() and count()
+    student_count = session.query(func.count(Student.id)).first()
+    print(student_count)
+
+    #FILTERING
+    query = session.query(Student).filter(Student.name.like('%Alan%'), Student.grade == 11).all()
+
+    for record in query:
+        print(record.name)
+
+    #UPDATING
+    for student in session.query(Student):
+        student.grade += 1
+
+    session.commit()
+    print([(student.name, student.grade) for student in session.query(Student)])
+
+    #UPDATE() CAN UPDATE WITHOUT CREATING OBJECTS FIRST
+    session.query(Student).update({
+        Student.grade: Student.grade + 1
+    })
+
+    #DELETING DATA
+    # query = session.query(Student).filter(Student.name == "Albert Einstein")
+    # albert = query.first()
+    # session.delete(albert)
+    # session.commit()
+
+    #OR
+    # query = session.query(Student).filter(Student.name == "Albert Einstein")
+    # query.delete()
+    
